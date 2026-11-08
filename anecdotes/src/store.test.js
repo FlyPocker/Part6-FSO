@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getVisibleAnecdotes } from './components/anecdoteUtils'
 import { useAnecdoteStore } from './store'
+import anecdoteService from './services/anecdotes'
 
 const anecdotes = [
   { id: '1', content: 'first', votes: 1 },
@@ -22,7 +23,8 @@ describe('anecdote store', () => {
       json: async () => anecdotes,
     }))
 
-    await useAnecdoteStore.getState().initialize()
+    const fetchedAnecdotes = await anecdoteService.getAll()
+    useAnecdoteStore.getState().actions.setAnecdotes(fetchedAnecdotes)
 
     expect(useAnecdoteStore.getState().anecdotes).toEqual(anecdotes)
   })
@@ -45,12 +47,7 @@ describe('anecdote store', () => {
 
   it('increases an anecdote vote count', async () => {
     useAnecdoteStore.setState({ anecdotes })
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ ...anecdotes[0], votes: 2 }),
-    }))
-
-    await useAnecdoteStore.getState().voteAnecdote('1')
+    useAnecdoteStore.getState().actions.update({ ...anecdotes[0], votes: 2 })
 
     expect(useAnecdoteStore.getState().anecdotes[0].votes).toBe(2)
   })

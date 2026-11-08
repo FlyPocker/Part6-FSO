@@ -1,23 +1,29 @@
-import { useAnecdoteStore } from '../store'
+import { useAnecdoteActions, useAnecdotes, useFilter } from '../store'
 import { useNotificationStore } from '../notificationStore'
 import { getVisibleAnecdotes } from './anecdoteUtils'
+import anecdoteService from '../services/anecdotes'
 
 const AnecdoteList = () => {
-  const anecdotes = useAnecdoteStore((state) => state.anecdotes)
-  const filter = useAnecdoteStore((state) => state.filter)
-  const voteAnecdote = useAnecdoteStore((state) => state.voteAnecdote)
-  const deleteAnecdote = useAnecdoteStore((state) => state.deleteAnecdote)
+  const anecdotes = useAnecdotes()
+  const filter = useFilter()
+  const { update, remove: removeFromStore } = useAnecdoteActions()
   const notify = useNotificationStore((state) => state.notify)
 
   const visibleAnecdotes = getVisibleAnecdotes(anecdotes, filter)
 
   const vote = async (id) => {
-    const votedAnecdote = await voteAnecdote(id)
+    const anecdote = anecdotes.find((item) => item.id === id)
+    const votedAnecdote = await anecdoteService.update({
+      ...anecdote,
+      votes: anecdote.votes + 1,
+    })
+    update(votedAnecdote)
     notify(`you voted '${votedAnecdote.content}'`)
   }
 
   const remove = async (id) => {
-    await deleteAnecdote(id)
+    await anecdoteService.remove(id)
+    removeFromStore(id)
   }
 
   return (

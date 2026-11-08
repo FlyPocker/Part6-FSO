@@ -3,19 +3,20 @@ import AnecdoteForm from './components/AnecdoteForm'
 import AnecdoteList from './components/AnecdoteList'
 import Filter from './components/Filter'
 import Notification from './components/Notification'
-import { useAnecdoteStore } from './store'
+import { useAnecdoteActions } from './store'
+import anecdoteService from './services/anecdotes'
 import { useNotificationStore } from './notificationStore'
 
 const App = () => {
-  const initialize = useAnecdoteStore((state) => state.initialize)
+  const { setAnecdotes } = useAnecdoteActions()
   const notify = useNotificationStore((state) => state.notify)
 
   useEffect(() => {
-    initialize().catch((error) => {
+    anecdoteService.getAll().then(setAnecdotes).catch((error) => {
       console.error(error)
       notify('could not load anecdotes')
     })
-  }, [initialize, notify])
+  }, [setAnecdotes, notify])
 
   return (
     <div>
