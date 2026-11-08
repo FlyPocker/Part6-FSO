@@ -1,10 +1,10 @@
-const Buttons = () => {
+const Buttons = ({ feedback }) => {
   return (
     <div>
       <h2>give feedback</h2>
-      <button>good</button>
-      <button>neutral</button>
-      <button>bad</button>
+      <button onClick={() => feedback('good')}>good</button>
+      <button onClick={() => feedback('neutral')}>neutral</button>
+      <button onClick={() => feedback('bad')}>bad</button>
     </div>
   )
 }
